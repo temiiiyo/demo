@@ -2,27 +2,28 @@ import os, sys
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
-
-from PY.korzina import Ui_MainWindow
 import pymysql
+from PY.korzina import Ui_MainWindow
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, cart = None):
         super().__init__()
         self.setupUi(self)
-
+        self.cart = {}
         self.cart = cart if cart is not None else {}
 
         self.db = pymysql.connect(
-            host='localhost',
-            user='root',
-            password='root',
-            database='shveyka',
-            cursorclass=pymysql.cursors.DictCursor
+            host = 'localhost',
+            user = 'root',
+            password = 'root',
+            database = 'shveyka',
+            cursorclass = pymysql.cursors.DictCursor
         )
         self.cursor = self.db.cursor()
+
         self.show_cart()
-        self.pushButton_2.clicked.connect(self.close)
+
+        self.pushButton_2.clicked.connect(self.back_main)
         self.pushButton.clicked.connect(self.checkout)
 
     def show_cart(self):
@@ -47,12 +48,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.tableWidget.setItem(row, 2, QTableWidgetItem(str(qty)))
                 self.tableWidget.setItem(row, 3, QTableWidgetItem(str(summ)))
                 row += 1
-
         self.tableWidget.insertRow(row)
-        self.tableWidget.setItem(row, 2, QTableWidgetItem('Итого:'))
+        self.tableWidget.setItem(row, 2, QTableWidgetItem('ИТОГО:'))
         self.tableWidget.setItem(row, 3, QTableWidgetItem(str(total)))
 
-    def back(self):
+    def back_main(self):
         self.close()
 
     def checkout(self):
@@ -67,8 +67,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.cursor.execute('insert into orders_items (orders_id, product_id, quantity, price) values (%s, %s, %s, %s)', (oid, pid, q, price))
         self.db.commit()
         self.cart.clear()
-        QMessageBox.information(self, 'Успешно', f'Заказ {oid} создан')
-
+        QMessageBox.information(self, 'Успешно', f'Заказ {oid} оформлен')
 
 
 if __name__ == '__main__':

@@ -2,9 +2,8 @@ import os, sys
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
-
-from PY.admin_interface import Ui_MainWindow
 import pymysql
+from PY.admin_interface import Ui_MainWindow
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -31,8 +30,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.comboBox_sort.addItem(c['name'], c['id'])
 
         self.load_product()
-        self.lineEdit_search.textChanged.connect(self.load_product)
         self.comboBox_sort.currentIndexChanged.connect(self.load_product)
+        self.lineEdit_search.textChanged.connect(self.load_product)
         self.pushButton_3.clicked.connect(self.open_korzina)
         self.pushButton_2.clicked.connect(self.open_zakaz)
         self.pushButton.clicked.connect(self.back_auth)
@@ -49,11 +48,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.clear_product()
 
         query = '''
-        select p.id, c.name as cat, p.name as p_name, pr.name as pr_name, p.price, p.photo_path, p.current_discount
+        select p.id, c.name as cat, pr.name as pr_name, p.name as p_name, p.price, p.photo_path, p.current_discount
         from product p 
-        join category c on c.id = p.category_id 
+        join category c on c.id = p.category_id
         join proizvoditel pr on pr.id = p.proizvoditel_id
-        where 1 = 1
+        where 1 = 1               
         '''
         params = []
 
@@ -80,7 +79,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not pixmap.isNull():
             photo.setPixmap(pixmap.scaled(120, 120, Qt.AspectRatioMode.KeepAspectRatio))
         else:
-            photo.setText('Нет Фото')
+            photo.setText('Нет фото')
         layout.addWidget(photo)
 
         info = QVBoxLayout()
@@ -91,7 +90,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         layout.addLayout(info)
 
         if p.get('current_discount', 0) > 0:
-            info.addWidget(QLabel(f"<font color = 'red' > Скидка: {p['current_discount']}%</font>"))
+            info.addWidget(QLabel(f"<font color = 'red' > Скидка: {p['current_discount']}%<font>"))
 
         btn = QPushButton('В корзину')
         btn.clicked.connect(lambda _, pid = p['id']: self.add_to_cart(pid))
@@ -101,7 +100,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def add_to_cart(self, pid):
         self.cart[pid] = self.cart.get(pid, 0) + 1
-        QMessageBox.information(self, 'Ок', 'Товар добавлен в корзину')
+        QMessageBox.information(self, 'Успешно', 'Товар добавлен в корзину')
 
     def open_korzina(self):
         from korzina import MainWindow
@@ -118,7 +117,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.auth_window = MainWindow()
         self.auth_window.show()
         self.close()
-
 
 
 if __name__ == '__main__':

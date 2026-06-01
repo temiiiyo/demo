@@ -50,7 +50,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.clear_product()
 
         query = '''
-        select p.id, c.name as cat, p.name as p_name, pr.name as pr_name, p.price, p.photo_path
+        select p.id, c.name as cat, p.name as p_name, pr.name as pr_name, p.price, p.photo_path, p.current_discount
         from product p
         join category c on c.id = p.category_id
         join proizvoditel pr on pr.id = p.proizvoditel_id
@@ -90,6 +90,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         info.addWidget(QLabel(p['p_name']))
         info.addWidget(QLabel(f'{p["price"]} руб.'))
         layout.addLayout(info)
+
+        if p.get('current_discount', 0) > 0:
+            info.addWidget(QLabel(f"<font color = 'red' > Скидка: {p['current_discount']}%</font>"))
 
         btn = QPushButton('В корзину')
         btn.clicked.connect(lambda _, pid = p['id']: self.add_to_cart(pid))

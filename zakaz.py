@@ -2,9 +2,8 @@ import os, sys
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
-
-from PY.zakaz import Ui_MainWindow
 import pymysql
+from PY.zakaz import Ui_MainWindow
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -21,7 +20,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )
         self.cursor = self.db.cursor()
         self.show_orders()
-        self.pushButton_2.clicked.connect(self.close)
+        self.pushButton_2.clicked.connect(self.back_main)
 
     def show_orders(self):
         self.tableWidget.setRowCount(0)
@@ -32,11 +31,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.cursor.execute('''
         select o.id, o.order_date, o.status, 
-        sum(p.price * oi.quantity) as total 
-        from product p 
+        sum(p.price * oi.quantity) as total
+        from product p
         join orders_items oi on oi.product_id = p.id
         join orders o on o.id = oi.orders_id
-        group by o.id 
+        group by o.id
         order by o.order_date
         ''')
 
@@ -55,11 +54,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.cursor.execute('delete from orders_items where orders_id = %s', (oid,))
         self.cursor.execute('delete from orders where id = %s', (oid,))
         self.db.commit()
-        QMessageBox.information(self, 'Успешно', f'Заказ {oid} удален')
+        QMessageBox.information(self, 'Успех', f'Заказ {oid} отдан')
         self.show_orders()
 
-    def back(self):
+
+    def back_main(self):
         self.close()
+
+
+
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
